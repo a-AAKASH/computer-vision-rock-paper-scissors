@@ -16,7 +16,7 @@ while True:
     # Press q to close the window
     print(prediction)
     if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        break 
             
 # After the loop release the cap object
 cap.release()
