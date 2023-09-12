@@ -2,6 +2,12 @@ import cv2
 from keras.models import load_model
 import numpy as np
 import time
+import random
+
+
+def get_computer_choice():
+    computer_choice = random.choice(['rock', 'paper', 'scissors'])
+    return computer_choice
 
 
 def get_prediction(frame, model):
@@ -12,6 +18,19 @@ def get_prediction(frame, model):
     data[0] = normalized_image
     prediction = model.predict(data)
     return prediction[0]
+
+
+def get_winner(user_input, computer_choice):
+    if user_input == computer_choice:
+        print("It is a tie!")
+    elif user_input == "rock" and computer_choice == "scissors":
+        print("You win!")
+    elif user_input == "paper" and computer_choice == "rock":
+        print("You win!")
+    elif user_input == "scissors" and computer_choice == "paper":
+        print("You win!")
+    else:
+        print("Computer wins!")
 
 
 def countdown_timer(duration):
@@ -40,6 +59,12 @@ def countdown_timer(duration):
                     break
 
             func(*args, **kwargs)
+
+        def is_completed():
+            return remaining_time <= 0
+        
+        wrapper.is_completed = is_completed 
+
         return wrapper
     return decorator
 
@@ -58,16 +83,21 @@ def main():
             ret, frame = cap.read()
             prediction = get_prediction(frame, model)
             predicted_class = np.argmax(prediction)
-            predicted_class_name = {0: "Rock", 1: "Paper", 2: "Scissors", 3: "Nothing"}
+            predicted_class_name = {0: "rock", 1: "paper", 2: "scissors", 3: "nothing"}
+            user_choice = predicted_class_name.get(predicted_class)
 
-            print(f"You chose {predicted_class_name.get(predicted_class)}!")
+            print(f"You chose {user_choice}!")
             break  # Exit the loop after getting the prediction
 
-    get_prediction_timed(cap, model)  # Run the prediction function with countdown
+        return user_choice
+
+    user_input = get_prediction_timed(cap, model)  # Run the prediction function with countdown
+    print(user_input)
+    computer_choice = get_computer_choice()
+    get_winner(user_input, computer_choice)
 
     cap.release()
     cv2.destroyAllWindows()
-
 
 
 if __name__ == "__main__":
