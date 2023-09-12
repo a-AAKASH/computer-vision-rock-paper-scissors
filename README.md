@@ -11,3 +11,7 @@ The aim of the project is to implement a simple computer vision model created fr
 
 
 # Usage Instruction
+
+There's two branches as of now
+    - `main` has the manual code up to date with limited camera play rps game 
+    - `testing` has an advance code for camera rps game under development
