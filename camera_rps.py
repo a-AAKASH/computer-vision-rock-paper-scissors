@@ -5,8 +5,44 @@ import time
 import random
 
 
+class CountdownTimer:
+    def __init__(self, duration):
+        self.duration = duration
+        self.remaining_time = None
+
+    def countdown_timer(self, func):
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
+            prev_int_remaining_time = int(self.duration)
+            self.remaining_time = None  # Initialize within the scope
+
+            while True:
+                elapsed_time = time.time() - start_time
+                self.remaining_time = max(0, self.duration - elapsed_time)
+                int_remaining_time = int(self.remaining_time)
+
+                if int_remaining_time != prev_int_remaining_time:
+                    print(f"Time remaining: {int_remaining_time} seconds")
+                    prev_int_remaining_time = int_remaining_time
+
+                if self.remaining_time <= 0:
+                    break
+
+                # Get and show the camera frame
+                ret, frame = args[0].read()
+                cv2.imshow('frame', frame)
+
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+
+            return func(*args, **kwargs)  # Return the result of the wrapped function
+
+        return wrapper
+
+
 def get_computer_choice():
     computer_choice = random.choice(['rock', 'paper', 'scissors'])
+    print("Computer chose:", computer_choice)
     return computer_choice
 
 
@@ -33,42 +69,6 @@ def get_winner(user_input, computer_choice):
         print("Computer wins!")
 
 
-def countdown_timer(duration):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            start_time = time.time()
-            prev_int_remaining_time = int(duration) # Initialising the full duration
-
-            while True:
-                elapsed_time = time.time() - start_time
-                remaining_time = max(0, duration - elapsed_time)
-                int_remaining_time = int(remaining_time)
-                
-                if int_remaining_time != prev_int_remaining_time:
-                    print(f"Time remaining: {int_remaining_time} seconds")
-                    prev_int_remaining_time = int_remaining_time              
-                    
-                if remaining_time <= 0:
-                    break
-
-                # Get and show the camera frame
-                ret, frame = args[0].read()
-                cv2.imshow('frame', frame)
-                
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-
-            func(*args, **kwargs)
-
-        def is_completed():
-            return remaining_time <= 0
-        
-        wrapper.is_completed = is_completed 
-
-        return wrapper
-    return decorator
-
-
 def main():
     model = load_model('keras_model.h5')
     cap = cv2.VideoCapture(0)
@@ -77,7 +77,9 @@ def main():
     cv2.namedWindow('frame', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('frame', 800, 600)  # Set the desired width and height
 
-    @countdown_timer(duration=3)  # Set the countdown duration here
+    timer = CountdownTimer(duration=3)
+
+    @timer.countdown_timer
     def get_prediction_timed(cap, model):
         while True:
             ret, frame = cap.read()
@@ -87,9 +89,7 @@ def main():
             user_choice = predicted_class_name.get(predicted_class)
 
             print(f"You chose {user_choice}!")
-            break  # Exit the loop after getting the prediction
-
-        return user_choice
+            return user_choice  # Return the user choice from here
 
     user_input = get_prediction_timed(cap, model)  # Run the prediction function with countdown
     print(user_input)
