@@ -77,24 +77,47 @@ def main():
     cv2.namedWindow('frame', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('frame', 800, 600)  # Set the desired width and height
 
+    computer_wins = 0
+    user_wins = 0
+    rounds_to_win = 3
+
     timer = CountdownTimer(duration=3)
 
-    @timer.countdown_timer
-    def get_prediction_timed(cap, model):
-        while True:
-            ret, frame = cap.read()
-            prediction = get_prediction(frame, model)
-            predicted_class = np.argmax(prediction)
-            predicted_class_name = {0: "rock", 1: "paper", 2: "scissors", 3: "nothing"}
-            user_choice = predicted_class_name.get(predicted_class)
+    while computer_wins < rounds_to_win and user_wins < rounds_to_win:
+        timer = CountdownTimer(duration=3)
 
-            print(f"You chose {user_choice}!")
-            return user_choice  # Return the user choice from here
+        @timer.countdown_timer
+        def get_prediction_timed(cap, model):
+            while True:
+                ret, frame = cap.read()
+                prediction = get_prediction(frame, model)
+                predicted_class = np.argmax(prediction)
+                predicted_class_name = {0: "rock", 1: "paper", 2: "scissors", 3: "nothing"}
+                user_choice = predicted_class_name.get(predicted_class)
 
-    user_input = get_prediction_timed(cap, model)  # Run the prediction function with countdown
-    print(user_input)
-    computer_choice = get_computer_choice()
-    get_winner(user_input, computer_choice)
+                print(f"You chose {user_choice}!")
+                return user_choice  # Return the user choice from here
+
+        user_input = get_prediction_timed(cap, model)
+        computer_choice = get_computer_choice()
+        get_winner(user_input, computer_choice)
+
+        if user_input == computer_choice:
+            print("It is a tie!")
+        elif user_input == "rock" and computer_choice == "scissors":
+            print("You win!")
+            user_wins += 1
+        elif user_input == "paper" and computer_choice == "rock":
+            print("You win!")
+            user_wins += 1
+        elif user_input == "scissors" and computer_choice == "paper":
+            print("You win!")
+            user_wins += 1
+        else:
+            print("Computer wins!")
+            computer_wins += 1
+
+        print(f"Current Score: User {user_wins} - Computer {computer_wins}")
 
     cap.release()
     cv2.destroyAllWindows()
