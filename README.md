@@ -23,7 +23,7 @@ The `main` branch should fulfill the game requirements.
 # File Structure
 
 The main file to use and run is the `camera_rps.py` file. The remaining files in the repo have been explained per below:
-- keras_model.h5 - The model used to train the game is stored here. It could be personalised from [Teachable Machine] (https://teachablemachine.withgoogle.com/train) if you fancy
+- keras_model.h5 - The model used to train the game is stored here. It could be personalised from [Teachable Machine](https://teachablemachine.withgoogle.com/train) if you fancy
 - labels.txt - It has the labels corressponding to the class (rock, paper, scissors or nothing)
 - manual_rps.py - This has the manual game which was a mid point for development of the logic of this project
 - requirements.txt
